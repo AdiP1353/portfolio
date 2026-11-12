@@ -3,16 +3,22 @@
  * master gain node driven by the volume control. Volume/mute settings are
  * remembered per visitor.
  *
- * Browsers keep audio locked until the visitor interacts with the page, so
- * `unlockAudio()` is called on the first click / key press, and sounds
- * requested before then are simply skipped (never queued up).
+ * Browsers keep audio locked until the visitor interacts with the page (a click,
+ * tap or key press — hovering and scrolling don't count), so
+ * `enableAudioOnFirstInteraction()` starts it as soon as they do. Sounds
+ * requested before then are simply skipped, never queued up.
  */
 const STORAGE_KEY = 'sound-settings';
 const DEFAULT_SETTINGS = { volume: 0.6, muted: false };
 
+// Browsers disagree on which events may start audio (Chrome accepts the mouse
+// press; Firefox waits for the release / click), so we try on all of them.
+const UNLOCK_EVENTS = ['pointerdown', 'pointerup', 'click', 'touchend', 'keydown', 'keyup'];
+const UNLOCK_GRACE_MS = 250; // resume() is async — let sounds from the same click through
+
 let context;
 let master;
-let resuming = false;
+let lastUnlockAttempt = -Infinity;
 let settings = loadSettings();
 
 // ── Settings ────────────────────────────────────────────────────────────────
@@ -76,14 +82,30 @@ export function getMasterOutput() {
   return master;
 }
 
-/** Call inside a click / key press handler to allow audio to play. */
+/** Try to start audio. Only works inside a user interaction (click, key press…). */
 export function unlockAudio() {
   const ctx = getAudioContext();
-  if (!ctx || ctx.state !== 'suspended' || resuming) return;
-  resuming = true;
-  ctx.resume().finally(() => {
-    resuming = false;
-  });
+  if (!ctx || ctx.state === 'running') return;
+  lastUnlockAttempt = performance.now();
+  ctx.resume().catch(() => {}); // refused this time — the next interaction tries again
+}
+
+/**
+ * Starts audio on the visitor's first click / tap / key press, retrying on each
+ * interaction until the browser allows it. Returns a cleanup function.
+ */
+export function enableAudioOnFirstInteraction() {
+  const options = { capture: true, passive: true };
+  const stop = () => UNLOCK_EVENTS.forEach((type) => window.removeEventListener(type, attempt, options));
+
+  // Once audio is running, the next interaction removes these listeners.
+  function attempt() {
+    if (context?.state === 'running') stop();
+    else unlockAudio();
+  }
+
+  UNLOCK_EVENTS.forEach((type) => window.addEventListener(type, attempt, options));
+  return stop;
 }
 
 /**
@@ -91,7 +113,9 @@ export function unlockAudio() {
  * Returns null if audio isn't unlocked yet. Disconnects itself after `lifetimeMs`.
  */
 export function createOutput(level, lifetimeMs = 3000) {
-  if (!context || (context.state !== 'running' && !resuming)) return null;
+  if (!context) return null;
+  const justUnlocked = performance.now() - lastUnlockAttempt < UNLOCK_GRACE_MS;
+  if (context.state !== 'running' && !justUnlocked) return null;
   const output = context.createGain();
   output.gain.value = level;
   output.connect(master);

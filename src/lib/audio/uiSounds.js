@@ -1,4 +1,4 @@
-import { createOutput, unlockAudio } from './engine.js';
+import { createOutput, enableAudioOnFirstInteraction } from './engine.js';
 import { tone, noise } from './synth.js';
 
 /**
@@ -70,6 +70,8 @@ function soundFor(element, kind, fallback) {
 
 /** Hook up hover / press sounds for the whole page. Returns a cleanup function. */
 export function installUiSounds() {
+  // Registered first, so audio is unlocked before the press sound below tries to play.
+  const stopUnlocking = enableAudioOnFirstInteraction();
   let hovered = null;
   let lastHoverAt = 0;
 
@@ -90,21 +92,16 @@ export function installUiSounds() {
   }
 
   function onPointerDown(event) {
-    unlockAudio();
     const sound = soundFor(event.target.closest(INTERACTIVE), 'pressSound', 'press');
     if (sound) playUiSound(sound);
   }
 
-  // Capture phase, so audio is unlocked before other key handlers try to play sounds.
-  const onKeyDown = () => unlockAudio();
-
   window.addEventListener('pointerover', onPointerOver, { passive: true });
   window.addEventListener('pointerdown', onPointerDown, { capture: true, passive: true });
-  window.addEventListener('keydown', onKeyDown, { capture: true });
 
   return () => {
     window.removeEventListener('pointerover', onPointerOver);
     window.removeEventListener('pointerdown', onPointerDown, { capture: true });
-    window.removeEventListener('keydown', onKeyDown, { capture: true });
+    stopUnlocking();
   };
 }
