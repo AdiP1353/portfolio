@@ -1,116 +1,64 @@
 <script>
-  import { onMount } from 'svelte';
-  import Glyph from './Glyph.svelte';
-
-  let { name, intro = [] } = $props();
-
-  // ── Typing animation: reveals the name one character at a time. ──
-  let count = $state(0);
-  const done = $derived(count >= name.length);
-
-  onMount(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      count = name.length;
-      return;
-    }
-    const timer = setInterval(() => {
-      count += 1;
-      if (count >= name.length) clearInterval(timer);
-    }, 85);
-    return () => clearInterval(timer);
-  });
-
-  // ── Hover highlight: letters near the cursor shift towards the highlight colour. ──
-  const GLOW_RADIUS = 90; // px from the cursor at which a letter stops glowing
-  const letterEls = [];
-  let glow = $state([]);
-
-  function handleMove(event) {
-    if (!done) return;
-    glow = letterEls.map((el) => {
-      const r = el.getBoundingClientRect();
-      const distance = Math.hypot(
-        event.clientX - (r.left + r.width / 2),
-        event.clientY - (r.top + r.height / 2),
-      );
-      return Math.max(0, 1 - distance / GLOW_RADIUS);
-    });
-  }
-
-  function handleLeave() {
-    glow = [];
-  }
+  let { status, headline, intro, cv } = $props();
 </script>
 
-<section id="top" class="container">
-  <h1 aria-label={name}>
-    <span class="prompt"><Glyph char=">" /></span>
-    <span class="name" aria-hidden="true" onmousemove={handleMove} onmouseleave={handleLeave}
-      >{#each name.slice(0, count) as char, i}<span
-          class="char"
-          bind:this={letterEls[i]}
-          style:--glow={glow[i] ?? 0}>{char}</span
-        >{/each}</span
-    ><span class="cursor" aria-hidden="true"></span>
-  </h1>
-
-  {#each intro as line}
-    <p>{line}</p>
-  {/each}
-  <p>Check out my <a href="#projects">projects</a> below.</p>
-</section>
+<header id="top">
+  <p class="status">{status}</p>
+  <h1>{headline[0]} <span class="dim">{headline[1]}</span></h1>
+  <p class="intro">{intro}</p>
+  <div class="ctas">
+    <a class="btn btn-solid" href="#work">See my work</a>
+    <a class="btn btn-line" href={cv} target="_blank" rel="noreferrer">Download CV</a>
+  </div>
+</header>
 
 <style>
-  section {
-    padding-top: clamp(4rem, 12vh, 8rem);
-    padding-bottom: 3rem;
+  header {
+    padding: 13vh 0 9vh;
+  }
+
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 20px;
+    color: var(--accent);
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
   }
 
   h1 {
-    font-family: var(--font-mono);
-    font-weight: 400;
-    font-size: clamp(2.25rem, 7vw, 4.25rem);
-    line-height: 1.15;
-    color: var(--accent);
-    margin: 0 0 2rem;
-    min-height: 1.15em;
+    max-width: 1000px;
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(48px, 8.2vw, 112px);
+    line-height: 0.95;
+    letter-spacing: -0.035em;
   }
 
-  /* Each letter blends from the accent to the highlight colour by its --glow (0–1).
-     The transition makes the highlight trail behind the cursor as it moves. */
-  .char {
-    color: color-mix(in oklab, var(--accent), var(--accent-highlight) calc(var(--glow) * 100%));
-    text-shadow: 0 0 calc(var(--glow) * 22px)
-      color-mix(in srgb, var(--accent-highlight) calc(var(--glow) * 50%), transparent);
-    transition:
-      color 0.4s ease-out,
-      text-shadow 0.4s ease-out;
+  .dim {
+    color: var(--faint);
   }
 
-  .cursor {
-    display: inline-block;
-    width: 0.55em;
-    height: 1em;
-    margin-left: 0.08em;
-    vertical-align: -0.12em;
-    background: var(--accent);
-    opacity: 0.75;
-    animation: blink 1.1s steps(1) infinite;
+  .intro {
+    max-width: 640px;
+    margin: 28px 0 32px;
+    color: var(--muted);
+    font-size: clamp(18px, 1.6vw, 21px);
   }
 
-  @keyframes blink {
-    50% {
-      opacity: 0;
-    }
-  }
-
-  p {
-    color: var(--text-muted);
-    margin: 0 0 0.35rem;
-    max-width: 60ch;
-  }
-
-  p a {
-    font-weight: 600;
+  .ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
   }
 </style>

@@ -1,77 +1,60 @@
 # Portfolio Website
 
-A one-page, dark-themed portfolio inspired by [justinchi.me](https://www.justinchi.me/): a typed terminal-style name that glows under the cursor, an "about me" terminal window, projects as tiles (screenshots slide out on hover) or a list, and LinkedIn / GitHub / CV links. Subtle synthesised UI sounds, a volume control, and a Konami-code easter egg.
+My portfolio: projects first, then experience and a way to get in touch.
 
-## Tech stack
+Live at https://adip1353.github.io/portfolio/
 
-| Tool | Why |
-| --- | --- |
-| **[Svelte 5](https://svelte.dev/)** | Small, readable components and a tiny bundle. |
-| **[Vite 7](https://vite.dev/)** | Dev server and static build. |
-| **Plain CSS** | Theme variables, component-scoped styles. |
-| **Google Fonts** | Inter and JetBrains Mono. |
+## How it's built
 
-## Project structure
+- **Svelte 5** and **Vite 7**. The page is a handful of small components that render the data files.
+- **Plain CSS**, dark theme. All design rules are in [`THEME.md`](THEME.md).
+- **Fonts** (Bricolage Grotesque, DM Sans) are bundled with `@fontsource-variable`, so nothing loads from Google.
 
 ```
 src/
 ├── data/
-│   ├── projects.js      ← your projects (edit this to add more)
-│   └── profile.js       ← name, intro, terminal facts, contact/CV links
+│   ├── profile.js        hero text, stats, experience, links
+│   └── projects.js       projects
 ├── lib/
-│   ├── Nav, Hero, TerminalCard, Contact, Footer .svelte
-│   ├── SoundControl.svelte  mute + volume slider
-│   ├── Projects.svelte      grid / list of projects
-│   ├── ViewToggle.svelte    grid ↔ list button
-│   ├── ProjectCard.svelte   clickable tile or list row
-│   ├── Glyph.svelte         > / # that turn into eggs
-│   ├── audio/               Web Audio engine + UI sounds
-│   └── easter-egg/          Konami code, Yoshi theme, music
-├── App.svelte
-├── app.css              colour themes, fonts, global styles
+│   ├── Nav.svelte
+│   ├── Hero.svelte
+│   ├── Stats.svelte
+│   ├── ProjectFeature.svelte   one project row
+│   ├── Experience.svelte
+│   └── Contact.svelte
+├── App.svelte            puts the sections together
+├── app.css               colours, buttons, shared styles
 └── main.js
 public/
-├── Adithya_Prakash_CV.pdf
-├── audio/bg_music.mp3
-└── images/<project>/    screenshots
+├── art/                  project cover art (16:10 SVGs)
+└── Adithya_Prakash_CV.pdf
 ```
 
 ## Adding a project
 
-Add an object to the array in `src/data/projects.js`:
+Add an entry to `src/data/projects.js`. Projects are numbered and alternate sides automatically.
 
 ```js
 {
-  title: 'My New Project',
-  description: 'What it does and what I learned.',
-  tags: ['TypeScript', 'React'],
-  source: 'https://github.com/AdiP1353/my-new-project', // optional
-  demo: 'https://example.com',                          // optional
-  images: ['images/my-new-project/1.png'],              // optional, files in public/images/
+  kind: 'Game',                          // small label above the title
+  title: 'My Project',
+  pitch: 'What it is and why it is interesting.',
+  chips: ['Godot', 'GDScript'],          // the first one is highlighted
+  art: 'art/my-project.png',             // 16:10 image in public/art/
+  artAlt: 'Screenshot of …',
+  source: 'https://github.com/AdiP1353/my-project', // or note: 'Studio · 2026'
 },
 ```
 
-Clicking a project opens `source`. The heading's toggle switches between **grid** (`images` slide out on hover) and **list** (always shown). Images are currently placeholders.
+Real screenshots or GIFs can replace the illustrations in `public/art/` at any time.
 
-## Sound
+## Editing everything else
 
-All sounds share one Web Audio graph (`src/lib/audio/`) whose master volume is the bottom-left control. UI sounds are synthesised: hover ticks, a press "thock", a swish when tiles open, a bell when a section is reached. Add `data-sound="none"` to silence an element, or `data-hover-sound` / `data-press-sound` to pick another sound.
-
-## Easter egg
-
-Press **↑ ↑ ↓ ↓ ← → ← → B A** (each correct key plays a rising note) to toggle Yoshi mode: a green theme bursts from the screen centre with a shockwave ring, sparks and a chime (View Transitions API), `>` and `#` pop into eggs, and `public/audio/bg_music.mp3` fades in quietly.
-
-Afterwards a **Yoshi mode** switch stays in the bottom-right. **Esc Esc** also exits. Typed keys appear as keycaps and reset after 3 s idle. Settings: top of `EasterEgg.svelte`.
-
-## Customising
-
-- **Personal info:** `src/data/profile.js`; each `facts` entry becomes a terminal line.
-- **CV:** replace `public/Adithya_Prakash_CV.pdf`.
-- **Colours:** variables in `src/app.css`.
+- **Hero, stats, experience, links:** `src/data/profile.js`.
+- **CV:** replace `public/Adithya_Prakash_CV.pdf`, keeping the name.
+- **Colours and type:** `src/app.css`, following `THEME.md`.
 
 ## Running locally
-
-Requires Node 20.19+.
 
 ```bash
 npm install
@@ -79,9 +62,4 @@ npm run dev       # http://localhost:5173
 npm run build     # static site in dist/
 ```
 
-Pushing to `main` deploys to GitHub Pages (`.github/workflows/deploy.yml`).
-
-## Accessibility
-
-- Semantic landmarks, visible focus outlines; tiles expand on keyboard focus.
-- Animations are disabled under `prefers-reduced-motion`.
+Pushing to `main` builds the site and publishes it to GitHub Pages (`.github/workflows/deploy.yml`).

@@ -1,52 +1,18 @@
+/* Look: see THEME.md. Colours are only these tokens; fonts are bundled (main.js). */
 :root {
-  /* Palette (default dark theme) */
-  --bg: #0e1016;
-  --surface: #161922;
-  --surface-raised: #1c202b;
-  --border: #262b38;
-  --text: #e4e7ef;
-  --text-muted: #9198ab;
-  --accent: #8b93ff;
-  --accent-soft: rgba(139, 147, 255, 0.12);
-  --accent-highlight: #d9b8ff; /* hero name hover glow */
-  --on-accent: #0e1016; /* text on a solid accent background */
-  --syntax-string: #e5c07b;
-  --syntax-key: #c8cde0;
-  --header-bg: rgba(14, 16, 22, 0.8);
-  --shadow: rgba(0, 0, 0, 0.9);
+  --bg: #141413; /* page background: warm near-black */
+  --surface: #1b1b19; /* raised areas: cards, art frames */
+  --border: #2c2b28; /* hairlines and dividers */
+  --text: #e8e5df; /* main text: warm off-white */
+  --muted: #a29f97; /* secondary text: dates, places, tags */
+  --faint: #8a877f; /* small labels, dimmed headline */
+  --accent: #d4b27f; /* muted sand: buttons, key highlights */
 
-  /* Type */
-  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
-
-  /* Layout */
-  --content-width: 960px;
-  --gutter: clamp(16px, 5vw, 32px);
-  --radius: 10px;
+  --font-display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
+  --font-body: 'DM Sans Variable', system-ui, sans-serif;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   color-scheme: dark;
-}
-
-/*
- * Yoshi theme — unlocked with the Konami code (see src/lib/easter-egg/).
- * Same minimal dark look as the default, tinted green, with eggshell-cream
- * strings and a warm boot-orange glow on the name.
- */
-:root[data-theme='yoshi'] {
-  --bg: #0c120e;
-  --surface: #121a14;
-  --surface-raised: #17221a;
-  --border: #213025;
-  --text: #e2ece3;
-  --text-muted: #8ea395;
-  --accent: #7fd36a;
-  --accent-soft: rgba(127, 211, 106, 0.12);
-  --accent-highlight: #f4a261;
-  --on-accent: #0c120e;
-  --syntax-string: #efe6c8;
-  --syntax-key: #c9dccd;
-  --header-bg: rgba(12, 18, 14, 0.8);
-  --egg-shell: #f3f0e4; /* egg icon that replaces > and # in this theme */
 }
 
 *,
@@ -56,187 +22,130 @@
 }
 
 html {
+  background: var(--bg);
+  color: var(--text);
   scroll-behavior: smooth;
-  scroll-padding-top: 72px;
 }
 
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-sans);
-  font-size: 16px;
-  line-height: 1.65;
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
-a {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
+::selection {
+  background: var(--accent);
+  color: var(--bg);
 }
 
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
-  border-radius: 4px;
 }
 
-.container {
-  width: 100%;
-  max-width: calc(var(--content-width) + var(--gutter) * 2);
+a {
+  color: var(--text);
+  text-decoration-color: var(--faint);
+  text-underline-offset: 3px;
+  transition:
+    color 0.15s ease,
+    text-decoration-color 0.15s ease;
+}
+
+a:hover {
+  text-decoration-color: var(--accent);
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* Page width */
+.wrap {
+  max-width: 1160px;
   margin: 0 auto;
-  padding: 0 var(--gutter);
+  padding: 0 32px;
 }
 
-/* Expanded project tiles may poke past the screen edge; never let that cause sideways scrolling. */
-main {
-  overflow-x: clip;
-}
-
-main > section {
-  position: relative;
-  /* Area the navigation highlight covers (top, sides, bottom). Sections can override. */
-  --flash-inset: 3.75rem calc(var(--gutter) - 1rem) -1rem;
-}
-
-/* ── Highlight played on a section after an in-page link scrolls to it (see highlightOnNavigate.js) ── */
-main > section.flash::before {
-  content: '';
-  position: absolute;
-  inset: var(--flash-inset);
-  pointer-events: none;
-  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
-  border-radius: 14px;
-  background: radial-gradient(
-    ellipse at top left,
-    color-mix(in srgb, var(--accent) 13%, transparent),
-    transparent 70%
-  );
-  box-shadow: 0 0 40px -10px color-mix(in srgb, var(--accent) 35%, transparent);
-  animation: section-flash 1.8s ease-out forwards;
-}
-
-main > section.flash .section-title {
-  animation: title-flash 1.8s ease-out;
-}
-
-@keyframes section-flash {
-  0% {
-    opacity: 0;
-  }
-  18% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-@keyframes title-flash {
-  18% {
-    text-shadow: 0 0 18px color-mix(in srgb, var(--accent) 70%, transparent);
-  }
-}
-
-.section-title {
-  font-family: var(--font-mono);
+/* Pill buttons: solid (accent) and outline */
+.btn {
+  display: inline-block;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 15px;
   font-weight: 500;
-  font-size: 1.5rem;
-  margin: 0 0 1.75rem;
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
-.section-title .glyph {
-  color: var(--accent);
+.btn-solid {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.btn-solid:hover {
+  background: var(--text);
+}
+
+.btn-line {
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.btn-line:hover {
+  border-color: var(--accent);
+}
+
+/* Section headings ("Selected work", "Experience") */
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+  margin: 120px 0 48px;
+}
+
+.section-head h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(32px, 4vw, 48px);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin: 0;
+}
+
+.section-head p {
+  color: var(--muted);
+  margin: 0;
+  max-width: 360px;
+}
+
+@media (max-width: 860px) {
+  .wrap {
+    padding: 0 20px;
+  }
+
+  .section-head {
+    flex-direction: column;
+    align-items: start;
+    margin-top: 88px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
+
   *,
   *::before,
   *::after {
-    animation: none !important;
     transition: none !important;
   }
-}
-
-/*
- * Theme switch: the new theme spreads out from the centre of the screen as an
- * expanding circle. theme.js animates the clip-path of the View Transition's
- * new snapshot; here we just turn off the default cross-fade.
- */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
-}
-
-.theme-switching *,
-.theme-switching *::before,
-.theme-switching *::after {
-  transition: none !important;
-}
-
-/* ── Theme-switch burst overlay (created by easter-egg/theme.js) ── */
-.theme-burst {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  pointer-events: none;
-  /* Own transition layer: drawn above both themes, not clipped by the circle. */
-  view-transition-name: theme-burst;
-}
-
-::view-transition-group(theme-burst),
-::view-transition-new(theme-burst) {
-  animation: none;
-}
-
-.theme-burst > * {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.theme-burst-ring {
-  width: 0;
-  height: 0;
-  border: 2px solid var(--accent);
-  box-shadow:
-    0 0 32px 8px color-mix(in srgb, var(--accent) 45%, transparent),
-    inset 0 0 32px 6px color-mix(in srgb, var(--accent) 35%, transparent);
-  opacity: 0;
-}
-
-.theme-burst-flash {
-  width: 46vmin;
-  height: 46vmin;
-  background: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--accent) 70%, white) 0%,
-    color-mix(in srgb, var(--accent) 35%, transparent) 35%,
-    transparent 70%
-  );
-  opacity: 0;
-}
-
-.theme-burst-spark {
-  width: 12px;
-  height: 12px;
-  background: var(--accent);
-  box-shadow: 0 0 14px 3px color-mix(in srgb, var(--accent) 60%, transparent);
-  opacity: 0;
-}
-
-.theme-burst-spark:nth-child(odd) {
-  width: 10px;
-  height: 13px; /* little eggs */
-  background: var(--egg-shell, #f3f0e4);
 }

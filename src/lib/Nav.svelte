@@ -1,80 +1,60 @@
 <script>
-  let { cv = '' } = $props();
+  let { name, cv } = $props();
 
   const links = [
-    { label: 'Projects', href: '#projects' },
+    { label: 'Work', href: '#work' },
+    { label: 'Experience', href: '#experience' },
     { label: 'Contact', href: '#contact' },
   ];
 </script>
 
-<header>
-  <nav class="container">
-    <ul>
-      {#each links as link}
-        <li><a href={link.href}>{link.label}</a></li>
-      {/each}
-      {#if cv}
-        <li><a class="cv" href={cv} target="_blank" rel="noreferrer">CV</a></li>
-      {/if}
-    </ul>
-  </nav>
-</header>
+<nav class="wrap">
+  <a class="name" href="#top">{name}</a>
+  <ul>
+    {#each links as link}
+      <li class="section"><a href={link.href}>{link.label}</a></li>
+    {/each}
+    <li><a class="btn btn-line" href={cv} target="_blank" rel="noreferrer">CV</a></li>
+  </ul>
+</nav>
 
 <style>
-  header {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: var(--header-bg);
-    backdrop-filter: blur(10px);
-  }
-
   nav {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: flex-end;
-    height: 68px;
+    height: 76px;
+  }
+
+  .name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 18px;
+    text-decoration: none;
   }
 
   ul {
     display: flex;
     align-items: center;
-    gap: 2.25rem;
+    gap: 28px;
     list-style: none;
     margin: 0;
     padding: 0;
+    font-size: 15px;
   }
 
-  ul a {
-    color: var(--text);
-    font-size: 1.05rem;
-    font-weight: 500;
-    transition:
-      color 0.2s ease,
-      background-color 0.2s ease;
-  }
-
-  ul a:hover {
-    color: var(--accent);
+  .section a {
+    color: var(--muted);
     text-decoration: none;
   }
 
-  /* Outlined button that inverts (filled accent, dark text) on hover. */
-  ul a.cv {
-    color: var(--accent);
-    border: 1.5px solid var(--accent);
-    border-radius: 8px;
-    padding: 0.4rem 1.1rem;
+  .section a:hover {
+    color: var(--text);
   }
 
-  ul a.cv:hover {
-    color: var(--on-accent);
-    background: var(--accent);
-  }
-
-  @media (max-width: 420px) {
-    ul {
-      gap: 1.5rem;
+  @media (max-width: 860px) {
+    .section {
+      display: none;
     }
   }
 </style>

@@ -1,42 +1,49 @@
 <script>
-  import Glyph from './Glyph.svelte';
-
-  let { contact } = $props();
+  let { email, links, cv } = $props();
 </script>
 
-<section id="contact" class="container">
-  <h2 class="section-title"><Glyph char="#" /> Contact me</h2>
-  <p>Got a question, an opportunity, or just want to say hi? Reach out below.</p>
-  <ul>
-    {#if contact.email}
-      <li><a href="mailto:{contact.email}">{contact.email}</a></li>
-    {/if}
-    {#each contact.links as link}
-      <li><a href={link.href} target="_blank" rel="noreferrer">{link.label} ↗</a></li>
+<section id="contact">
+  <p>Hiring for gameplay or software roles?</p>
+  <a class="email" href="mailto:{email}">{email}</a>
+  <div class="row">
+    {#each links as link}
+      <a class="btn btn-line" href={link.href} target="_blank" rel="noreferrer">{link.label}</a>
     {/each}
-  </ul>
+    <a class="btn btn-solid" href={cv} target="_blank" rel="noreferrer">Download CV</a>
+  </div>
 </section>
 
 <style>
   section {
-    padding-top: 5rem;
-    padding-bottom: 4rem;
-    --flash-inset: 3.75rem calc(var(--gutter) - 1rem) 2.5rem;
+    margin-top: 140px;
+    padding: 80px 0 64px;
+    border-top: 1px solid var(--border);
   }
 
   p {
-    color: var(--text-muted);
-    margin: 0 0 1rem;
+    margin: 0 0 12px;
+    color: var(--muted);
   }
 
-  ul {
+  .email {
+    display: inline-block;
+    margin-bottom: 32px;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(28px, 6vw, 84px);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .email:hover {
+    color: var(--accent);
+  }
+
+  .row {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem 1.75rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    font-family: var(--font-mono);
-    font-size: 0.95rem;
+    gap: 12px;
   }
 </style>
